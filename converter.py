@@ -1,4 +1,4 @@
-def permission_to_number(permission):     # max permission is rwxrwxrwx min permission is ---------
+def permission_to_number(permission):     # Max permission is rwxrwxrwx min permission is ---------
     binary = list("000000000")
     index = 0
 
@@ -9,7 +9,7 @@ def permission_to_number(permission):     # max permission is rwxrwxrwx min perm
             binary[index] = "1"
         index += 1
 
-    number1 = int("".join(binary[:3]), 2) * 100     # Converts binary to number || Absolutely needs to be improved lol
+    number1 = int("".join(binary[:3]), 2) * 100     # Converts binary to number ** Needs improvement
     mid = "".join(binary[3])
     mid += "".join(binary[4])
     mid += "".join(binary[5])
@@ -18,19 +18,37 @@ def permission_to_number(permission):     # max permission is rwxrwxrwx min perm
     end += "".join(binary[7])
     end += "".join(binary[8])
     number3 = int(end, 2)
-    print("The corresponding number is: " + str(number1 + number2 + number3))
+    return "The corresponding number is: " + str(number1 + number2 + number3)
 
 
-def number_to_permission(number):       # max number is 777 min number is 000
-    binary = ""
+def number_to_permission(number):       # Max number is 777 min number is 000
+    if number == 0 or number == 00 or number == 000:
+        return "The corresponding permission is: ---------"
+
+    binary = list()
     number = list(str(number))
     index = 0
 
     for numbers in number:     # Converts number to binary
-        binary += bin(int(number[index]))
+        if int(numbers) == 0:
+            binary += bin(int(number[index]))
+            binary.append("0")
+            binary.append("0")
+        elif int(numbers) == 1:
+            binary += bin(int(number[index]))
+            binary.insert(-1, "0")
+            binary.insert(-1, "0")
+        elif int(numbers) <= 3:
+            binary += bin(int(number[index]))
+            binary.insert(-2, "0")
+        elif int(numbers) > 7:
+            return int("Intentional Error")
+        else:
+            binary += bin(int(number[index]))
         index += 1
 
-    binary = list(binary)   # Removes the "0b" prefix bin() adds || Absolutely needs to be improved lol
+    binary = list(binary)   # Removes the "0b" prefix bin() adds ** Needs improvement
+    print(binary)
     del binary[0]
     del binary[0]
     del binary[3]
@@ -56,7 +74,36 @@ def number_to_permission(number):       # max number is 777 min number is 000
             permission += "-"
         index += 1
 
-    print("The corresponding permission is: " + permission)
+    return "The corresponding permission is: " + permission
+
+
+def verify_permission(permission):        # Max permission is rwxrwxrwx min permission is ---------
+    r = [permission[0], permission[3], permission[6]]
+    w = [permission[1], permission[4], permission[7]]
+    x = [permission[2], permission[5], permission[8]]
+    condition = 0
+
+    for index in r:
+        if index == "r" or index == "-":
+            continue
+        else:
+            return int("Intentional Error")
+    condition += 1
+    for index in w:
+        if index == "w" or index == "-":
+            continue
+        else:
+            return int("Intentional Error")
+    condition += 1
+    for index in x:
+        if index == "x" or index == "-":
+            continue
+        else:
+            return int("Intentional Error")
+    condition += 1
+
+    if condition == 3:
+        return "valid"
 
 
 while True:
@@ -65,15 +112,19 @@ while True:
                               "\n-1. Quit program\n"))
         if userInput == 1:
             userPermission = input("\nEnter the permission setting you want (ex. rw-r--r--): ")
-            if ("r" in userPermission or "w" in userPermission or "x" in userPermission or "-" in userPermission) \
-                    and len(userPermission) < 10:    # Verifies user permission input || Doesn't really work :(
-                permission_to_number(userPermission)
+            if len(userPermission) != 9:
+                int("Intentional Error")
+            elif verify_permission(userPermission) == "valid":
+                print(permission_to_number(userPermission))
             else:
-                userPermission = int("Intentional Error")
+                int("Intentional Error")
 
         elif userInput == 2:
-            userNumber = int(input("\nEnter the number you want (ex. 775): "))
-            number_to_permission(userNumber)
+            userNumber = str(input("\nEnter the number you want (ex. 775): "))
+            if len(userNumber) == 3:
+                print(number_to_permission(int(userNumber)))
+            else:
+                int("Intentional Error")
 
         elif userInput == -1:
             break
