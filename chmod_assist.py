@@ -1,54 +1,80 @@
-def permission_to_number(permission):     # Max permission is rwxrwxrwx min permission is ---------
+'''
+NOTE:
+    Max symbolic permission is rwxrwxrwx, min symbolic permission is ---------
+    Max numeric permission is 777, min numeric permission is 000
+'''
+
+from enum import Enum
+import operator
+
+
+class Menu(Enum):
+    SYM2NUM = 1
+    NUM2SYM = 2
+    EXIT = 3
+    RANGE = range(1, 4)
+    ERROR = "\n-ERROR-\nPlease only use the values specified, thank you"
+
+
+# Converts from symbolic permission to numeric permission
+def symbolic_to_numeric(sym_permission):
     binary = list("000000000")
     index = 0
 
-    for character in permission:    # Converts permission settings to binary
+    # Converts symbolic permission to binary
+    for character in sym_permission:
         if character == '-':
             binary[index] = "0"
         else:
             binary[index] = "1"
         index += 1
 
-    number1 = int("".join(binary[:3]), 2) * 100     # Converts binary to number ** Needs improvement
+    # Converts binary to numeric permission TODO: Refactor
+    first_digit = int("".join(binary[:3]), 2) * 100
     mid = "".join(binary[3])
     mid += "".join(binary[4])
     mid += "".join(binary[5])
-    number2 = int(mid, 2) * 10
+    second_digit = int(mid, 2) * 10
     end = "".join(binary[6])
     end += "".join(binary[7])
     end += "".join(binary[8])
-    number3 = int(end, 2)
-    return "The corresponding number is: " + str(number1 + number2 + number3)
+    third_digit = int(end, 2)
+
+    return str(first_digit + second_digit + third_digit)
 
 
-def number_to_permission(number):       # Max number is 777 min number is 000
-    if number == 0 or number == 00 or number == 000:
-        return "The corresponding permission is: ---------"
+# Converts from numeric permission to symbolic permission
+def numeric_to_symbolic(num_permission):
+    if num_permission == "000":
+        return "---------"
 
     binary = list()
-    number = list(str(number))
+    num_permission = list(num_permission)
     index = 0
 
-    for numbers in number:     # Converts number to binary
-        if int(numbers) == 0:
-            binary += bin(int(number[index]))
+    # Converts numeric permission to binary
+    for number in num_permission:
+        if number == "0":
+            binary += bin(int(num_permission[index]))
             binary.append("0")
             binary.append("0")
-        elif int(numbers) == 1:
-            binary += bin(int(number[index]))
+        elif number == "1":
+            binary += bin(int(num_permission[index]))
             binary.insert(-1, "0")
             binary.insert(-1, "0")
-        elif int(numbers) <= 3:
-            binary += bin(int(number[index]))
+        elif number <= "3":
+            binary += bin(int(num_permission[index]))
             binary.insert(-2, "0")
-        elif int(numbers) > 7:
-            return int("Intentional Error")
+        elif number > "7":
+            return int("Error")
         else:
-            binary += bin(int(number[index]))
+            binary += bin(int(num_permission[index]))
+
         index += 1
 
-    binary = list(binary)   # Removes the "0b" prefix bin() adds ** Needs improvement
-    print(binary)
+    # Removes the "0b" prefix bin() adds TODO: Refactor with RegEx?
+    binary = list(binary)
+    # print(binary)   # NOTE: Debug
     del binary[0]
     del binary[0]
     del binary[3]
@@ -56,81 +82,98 @@ def number_to_permission(number):       # Max number is 777 min number is 000
     del binary[6]
     del binary[6]
     binary = "".join(binary)
-    permission = ""
+
+    sym_permission = ""
     index = 0
 
-    while len(binary) != 9:     # Adds 0's until binary is 9 length
+    # Adds 0's until binary is 9 length
+    while len(binary) != 9:
         binary += "0"
 
-    for number in binary:       # Converts binary to permission setting
-        if number == '1':
+    # Converts binary to symbolic permission
+    for num_permission in binary:
+        if num_permission == '1':
             if index == 0 or index == 3 or index == 6:
-                permission += "r"
+                sym_permission += "r"
             elif index == 1 or index == 4 or index == 7:
-                permission += "w"
+                sym_permission += "w"
             else:
-                permission += "x"
+                sym_permission += "x"
         else:
-            permission += "-"
+            sym_permission += "-"
+
         index += 1
 
-    return "The corresponding permission is: " + permission
+    return sym_permission
 
 
-def verify_permission(permission):        # Max permission is rwxrwxrwx min permission is ---------
-    r = [permission[0], permission[3], permission[6]]
-    w = [permission[1], permission[4], permission[7]]
-    x = [permission[2], permission[5], permission[8]]
-    condition = 0
+# Max permission is rwxrwxrwx min permission is ---------
+def verify_permission(permission):
+    if permission.isdigit():
+        if len(permission) != 3:
+            return int("Error")
 
-    for index in r:
-        if index == "r" or index == "-":
-            continue
-        else:
-            return int("Intentional Error")
-    condition += 1
-    for index in w:
-        if index == "w" or index == "-":
-            continue
-        else:
-            return int("Intentional Error")
-    condition += 1
-    for index in x:
-        if index == "x" or index == "-":
-            continue
-        else:
-            return int("Intentional Error")
-    condition += 1
+    else:
+        if len(permission) != 9:
+            return int("Error")
 
-    if condition == 3:
-        return "valid"
+        r = [permission[0], permission[3], permission[6]]
+        w = [permission[1], permission[4], permission[7]]
+        x = [permission[2], permission[5], permission[8]]
 
-
-while True:
-    try:
-        userInput = int(input("\nChoose an option: \n1. Permission to number \n2. Number to permission "
-                              "\n-1. Quit program\n"))
-        if userInput == 1:
-            userPermission = input("\nEnter the permission setting you want (ex. rw-r--r--): ")
-            if len(userPermission) != 9:
-                int("Intentional Error")
-            elif verify_permission(userPermission) == "valid":
-                print(permission_to_number(userPermission))
+        for index in r:
+            if index == "r" or index == "-":
+                continue
             else:
-                int("Intentional Error")
+                return int("Error")
 
-        elif userInput == 2:
-            userNumber = str(input("\nEnter the number you want (ex. 775): "))
-            if len(userNumber) == 3:
-                print(number_to_permission(int(userNumber)))
+        for index in w:
+            if index == "w" or index == "-":
+                continue
             else:
-                int("Intentional Error")
+                return int("Error")
 
-        elif userInput == -1:
-            break
+        for index in x:
+            if index == "x" or index == "-":
+                continue
+            else:
+                return int("Error")
 
-        else:
-            print("\n-ERROR-\nInvalid choice\n")
-    except ValueError:
-        print("\n-ERROR-\nInvalid choice\n")
+    return True
 
+
+# Menu loop
+def main():
+    while True:
+        try:
+            print("\n-MENU-")
+            choice = int(input("1: Symbolic to numeric\n"
+                               "2: Numeric to symbolic\n"
+                               "3: Exit\n"))
+
+            if choice not in Menu.RANGE.value:
+                int("Error")
+
+            elif choice == Menu.SYM2NUM.value:
+                permission = input("\nEnter the symbolic permission " +
+                                   "you want (ex. rw-r--r--): ")
+
+                if verify_permission(permission):
+                    print("The corresponding numeric permission is: " +
+                          symbolic_to_numeric(permission))
+
+            elif choice == Menu.NUM2SYM.value:
+                permission = input("\nEnter the numeric permission " +
+                                   "you want (ex. 775): ")
+
+                if verify_permission(permission):
+                    print("The corresponding symbolic permission is: " +
+                          numeric_to_symbolic(permission))
+
+            elif choice == Menu.EXIT.value:
+                break
+        except ValueError:
+            print(Menu.ERROR.value)
+
+if __name__ == '__main__':
+    main()
