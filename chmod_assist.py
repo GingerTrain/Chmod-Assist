@@ -108,7 +108,7 @@ def numeric_to_symbolic(num_permission):
 
 
 # Max permission is rwxrwxrwx min permission is ---------
-def verify_permission(permission):
+def validate_permission(permission):
     if permission.isdigit():
         if len(permission) != 3:
             return int("Error")
@@ -158,7 +158,7 @@ def main():
                 permission = input("\nEnter the symbolic permission " +
                                    "you want (ex. rw-r--r--): ")
 
-                if verify_permission(permission):
+                if validate_permission(permission):
                     print("The corresponding numeric permission is: " +
                           symbolic_to_numeric(permission))
 
@@ -166,7 +166,7 @@ def main():
                 permission = input("\nEnter the numeric permission " +
                                    "you want (ex. 775): ")
 
-                if verify_permission(permission):
+                if validate_permission(permission):
                     print("The corresponding symbolic permission is: " +
                           numeric_to_symbolic(permission))
 
