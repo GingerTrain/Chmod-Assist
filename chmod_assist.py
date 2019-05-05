@@ -107,7 +107,7 @@ def numeric_to_symbolic(num_permission):
     return sym_permission
 
 
-# Max permission is rwxrwxrwx min permission is ---------
+# Validates symbolic permission or numeric permission
 def validate_permission(permission):
     if permission.isdigit():
         if len(permission) != 3:
